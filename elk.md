@@ -215,11 +215,11 @@ mkdir -p {elasticsearch,logstash,kibana}/{config,pipeline} && touch {elasticsear
 ```
 docker-compose up -d
 ```
-    Проверьте работу компонентов:
+Проверьте работу компонентов:
 
-        Elasticsearch: curl -u elastic:YourSecurePassword -k http://localhost:9200
+    Elasticsearch: curl -u elastic:YourSecurePassword -k http://localhost:9200
 
-        Kibana: откройте в браузере http://localhost:5601 (логин: elastic, пароль из .env файла)
+    Kibana: откройте в браузере http://localhost:5601 (логин: elastic, пароль из .env файла)
 
 1. Настройка Filebeat для отправки логов (опционально)
 

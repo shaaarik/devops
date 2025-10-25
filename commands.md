@@ -294,59 +294,86 @@ cat /proc/loadavg
 ```
 sudo tcpdump -v -n -w curl.pcap
 ```
-
-curl -s https://practicum.yandex.ru > /dev/null // сделать запрос
+сделать запрос
 ```
+curl -s https://practicum.yandex.ru > /dev/null
 ```
-dig practicum.yandex.ru  // резолв имени
+резолв имени
 ```
+dig practicum.yandex.ru 
+```
+команда host
 ```
 host -t A  practicum.yandex.ru  // резолв IPv4
 host -t AAAA practicum.yandex.ru // резолв IPv6
 host -t CNAME practicum.yandex.ru // резолв перенаправления на другое доменное имя 
 host -t PTR  87.250.250.5 // по IP получить доменное имя
 ```
+конфигурация для того как искать адреса
 ```
-cat /etc/nsswitch.conf // конфигурация для того как искать адреса
+cat /etc/nsswitch.conf
 ```
+файл с известными DNS
 ```
-/etc/hosts // файл с известными DNS
+/etc/hosts 
 ```
+запрос в /etc/hosts
 ```
-getent hosts practicum.yandex.ru // запрос в /etc/hosts
-cat /etc/resolv.conf // конфигурация резолва
-sudo ss -lp | grep 127.0.0.53 // посмотреть все порты которые слушают на хосте с названиями процессов
-ps aux | grep 641 // найти процесс 641 
-systemctl status systemd-resolved // статут сервиса
+getent hosts practicum.yandex.ru
+```
+конфигурация резолва
+```
+cat /etc/resolv.conf
+```
+посмотреть все порты которые слушают на хосте с названиями процессов
+```
+sudo ss -lp | grep 127.0.0.53
+```
+найти процесс 641 
+```
+ps aux | grep 641 
+```
+статут сервиса
+```
+systemctl status systemd-resolved
+```
+использование команды ip
+```
 ip address show // показать состояние интерфесов
 ip route show // таблица маршрутизации
 arp -a // АРП таблица
 ip neigh show // АРП таблица
+```
 
-
+использование Netplan
+```
 /etc/netplan/*.yaml // файл настройки сети
 $ netplan generate //сгенерировать конфигурацию серверной части из файлов netplan YAML
 $ netplan apply // применить конфигурацию из файлов netplan YAML к работающей системе
 $ netplan try // попробовать применить конфигурацию, при необходимости сделать откат изменений
 ip a show eth0 // инфа про eth0
+```
 
-
+```
 getent hosts //вывести список всех хостов из базы данных /etc/hosts
 getent passwd // показать информацию о всех пользователях
-
+```
+```
 curl -X POST -d "param1=value1&param2=value2" https://practicum.yandex.ru/ // отправить HTTP POST-запрос
-
+```
+```
 curl -H "Authorization: <token>" https://practicum.yandex.ru/ //запрос с авторизацией через token
 curl -H "Content-Type: application/json" -H "Authorization: <token>" -X POST -d {"test":"hello"} https://practicum.yandex.ru/api/test // отправить POST запрос с авторизацией и указанием типа тела запроса json
-
+```
+```
 nc -u practicum.yandex.ru 1234 // установить UDP-соединение
-
-
+```
+```
 ip a show // посмотреть все IP адреса, связанные с сетевыми интерфейсами
 ip -br a show // та же информация, но в кратком виде
 ip link show // посмотреть список сетевых интерфейсов
 ss -ltn sport gt 8080 //список всех прослушивающие порты с номером порта = 8080 
-
+```
 
 file /boot/grub/i386-pc/boot.img // инфа про файл загрузчика GRUB
 unmkinitramfs -v /boot/initrd.img-5.4.0-156-generic . // распаковать образ initrd 

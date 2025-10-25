@@ -1,91 +1,262 @@
-/boot/grub/grub.cfg // конфиг загрузчика
-/boot/vmlinuz // ядро
-/boot/initrd.img //образ ФС
-sudo update-grub // обновить GRUB (/etc/default/grub)
-uname -r // версия ядра
-/proc/cmdline // Строка параметров загрузки ядра (собираются отсюда /boot/grub/grub.cfg)
-/sys/firmware/dmi/tables/DMI // версия прошивки BIOS 
-newgrp docker // применить изменения на группу
-/etc/security/limits.conf // ограничения
-echo $SHELL // оболочка
-cat no_such_file.txt > error.txt 2>&1 // поток вывода и ошибок
-sudo lsof /dev/ptmx //все запущенные pts от ptmx
-
-tmux 
-ctrl+B + C // копировать сессию
-nohup sleep 100 & // запустить в фоне
+# Ядро
+конфиг загрузчика
+```
+/boot/grub/grub.cfg
+```
+ядро
+```
+/boot/vmlinuz
+```
+образ ФС
+```
+/boot/initrd.img 
+```
+обновить GRUB (/etc/default/grub)
+```
+sudo update-grub 
+```
+версия ядра
+```
+uname -r
+```
+Строка параметров загрузки ядра (собираются отсюда /boot/grub/grub.cfg)
+```
+/proc/cmdline 
+```
+версия прошивки BIOS 
+```
+/sys/firmware/dmi/tables/DMI 
+```
+применить изменения на группу
+```
+newgrp docker
+``` 
+ограничения
+```
+/etc/security/limits.conf 
+```
+оболочка
+```
+echo $SHELL
+```
+поток вывода и ошибок
+```
+cat no_such_file.txt > error.txt 2>&1 
+```
+все запущенные pts от ptmx
+```
+sudo lsof /dev/ptmx
+```
+#
+tmux копировать сессию
+```
+ctrl+B + C 
+```
+запустить в фоне
+```
+nohup sleep 100 & 
 fg // вернуться к процессу в фоне
 bg //продолжить выполнение 
 jobs // посмотреть список
+```
+писать и в консоль и в файл
+```
+tee dmesg.txt
+``` 
+список сигналов для процессов
+```
+kill -l
+```
+считать строки, слова и байты 
+```
+wc
+```
+#
+список телетайпов с группами
+```
+ps -o sid,pgid,ppid,pid,tty,cmd
+```
+окружение процесса
+```
+cat /proc/self/environ
+```
+посмотреть путь до файла исполения
+```
+which ls
+```
+посмотреть тип команды
+```
+type ls
+``` 
+экспорт в окружения
+```
+export MY_VAR=2234
+```
+постоянно закрепит переменнуб даже после перезапуска
+```
+echo 'export VARNAME="Value"' >> ~/.bashrc
+```
+перечитать конфигурацию
+```
+source ~/.bashrc
+```
+# Работа с диском
+список блочных устройств
+```
+sudo lsblk
+``` 
+инфа про диск
+```
+sudo fdisk -l /dev/vdb 
+```
+начать размечать диск
+```
+sudo fdisk /dev/vdb
+``` 
+создать физический том
+```
+sudo pvcreate /dev/vdb1 /dev/vdb2
+```
+создать группу томов
+```
+sudo vgcreate vg1 /dev/vdb1
+```
+создать логический том
+```
+sudo lvcreate -n lv1 -l 50%FREE vg1
+``` 
+разметить на ext4
+```
+sudo mkfs.ext4 /dev/vg1/lv 
+```
+отключаем резервирование под root
+```
+sudo tune2fs -m 0 /dev/vg1/lv1
+```
+посмотреть список примонтированных устройств
+```
+findmnt
+```
+# Монтирование образов
+монтировать iso
+```
+guestmount -a slitaz-4.0-base.iso -m /dev/sda mount2/ 
+```
+монтировать другой архив
+```
+archivemount linux-0.01.tar.gz /mnt/mount1/ 
+```
+отмонтировать
+```
+umount /mnt/fs
+```
+отмонтировать без повышения привелегий
+```
+fusermount -u /mnt/mount1/ 
+```
+монтировать lv1 с опцией только на чтение
+```
+sudo mount -o remount,ro /dev/vg1/lv1 /mnt/mount3
+```
+создать 2 папки если еще не созданы
+```
+sudo mkdir -p /mnt/mount{1,2} 
+```
+запись в конфиг чтобы повторилось после перезапуска
+```
+sudo bash -c 'echo "/dev/vg1/lv1 /mnt/mount1 ext4 defaults 0 0" >> /etc/fstab' 
+```
+перечитать /etc/fstab
+```
+sudo mount -a 
+```
+# Поиск файлов
+узнать путь до исполняемого файла
+```
+whereis mkfs.ext3 
+```
+искать по иноде
+```
+find /usr/sbin/ -inum 10341212 
+```
+# Создание всех типов файлов
+Создание текстового файла
+```
+touch file.txt
+```
+создание мягкой ссылки
+```
+ln -s /path/to/file link 
+``` 
+создание хардлинка
+```
+ln /path/to/file link
+```
+создание пустого символьного устройства
+```
+mknod device c 1 3 
+```
+создание пустого блочного устройства
+```
+mknod device b 1 3
+```
+создание пайпа
+```
+mkfifo pipe
+``` 
+проверить тип файла
+```
+stat 
+```
+# Планировщик
+посмотреть текущий планировщик
+```
+cat /sys/block/sda/queue/scheduler
+```
+все доступные планировщики
+```
+grep "" /sys/block/*/queue/scheduler
+```
+задать планировщик для диска sda
+```
+echo cfq > /sys/block/sda/queue/scheduler
+``` 
+читать буффер
+```
+free 
+```
+# Полезные утилиты
+hdparm - утилита для работы с прямым доступом к жёсткому диску
+smartctl - для мониторинга состояния и работы жёсткого диска
+fsck - может быть использована для проверки целостности файловой системы 
+iostat - для мониторинга производительности устройств ввода-вывода.
+lsof - утилита для отображения открытых файлов и процессов
 
-tee dmesg.txt // писать и в консоль и в файл
-kill -l // список сигналов для процессов
-wc //считать строки, слова и байты
- 
-ps -o sid,pgid,ppid,pid,tty,cmd //список телетайпов с группами
-cat /proc/self/environ // окружение процесса
-which ls // посмотреть путь до файла исполения
-type ls // посмотреть тип команды
-export MY_VAR=2234 // экспорт в окружения
-echo 'export VARNAME="Value"' >> ~/.bashrc // постоянно закрепит переменнуб даже после перезапуска
-source ~/.bashrc // перечитать конфигурацию
-sudo lsblk // список блочных устройств
-sudo fdisk -l /dev/vdb // инфа про диск
-sudo fdisk /dev/vdb // начать размечать диск
-sudo pvcreate /dev/vdb1 /dev/vdb2 // создать физический том
-sudo vgcreate vg1 /dev/vdb1 // создать группу томов
-sudo lvcreate -n lv1 -l 50%FREE vg1 // создать логический том
-sudo mkfs.ext4 /dev/vg1/lv // разметить на ext4
-sudo tune2fs -m 0 /dev/vg1/lv1 //отключаем резервирование под root
-findmnt // посмотреть список примонтированных устройств
+df - показывает информацию о доступном пространстве на файловых системах
+du - позволяет оценить объём занимаемого файлами дискового пространства
+выполняет копирование и преобразование файлов и устройств блоками
+```
+sudo dd if=/dev/sda of=/home/dmitry/backup_mbr bs=512 count=1
+```
 
-guestmount -a slitaz-4.0-base.iso -m /dev/sda mount2/ // монтировать iso
-archivemount linux-0.01.tar.gz /mnt/mount1/ // монтировать другой архив
-umount /mnt/fs // отмонтировать
-fusermount -u /mnt/mount1/ // отмонтировать без повышения привелегий
+# Использование файла подкачки
 
-sudo mount -o remount,ro /dev/vg1/lv1 /mnt/mount3 // монтировать lv1 с опцией только на чтение
-
-sudo mkdir -p /mnt/mount{1,2} // создать 2 папки если еще не созданы
-
-sudo bash -c 'echo "/dev/vg1/lv1 /mnt/mount1 ext4 defaults 0 0" >> /etc/fstab' // запись в конфиг чтобы повторилось после перезапуска
-sudo mount -a // перечитать /etc/fstab
-
-whereis mkfs.ext3 // узнать путь до исполняемого файла
-find /usr/sbin/ -inum 10341212 // искать по иноде 
-
-touch file.txt // Создание текстового файла
-ln -s /path/to/file link // создание мягкой ссылки
-ln /path/to/file link // создание хардлинка
-mknod device c 1 3 // создание пустого символьного устройства
-mknod device b 1 3 // создание пустого блочного устройства
-mkfifo pipe // создание пайпа
-stat // проверить тип файла
-
-cat /sys/block/sda/queue/scheduler // посмотреть текущий планировщик
-grep "" /sys/block/*/queue/scheduler // все доступные планировщики
-echo cfq > /sys/block/sda/queue/scheduler // задать планировщик для диска sda
-free // читать буффер
-
-hdparm // утилита для работы с прямым доступом к жёсткому диску
-smartctl // для мониторинга состояния и работы жёсткого диска
-fsck // может быть использована для проверки целостности файловой системы 
-iostat // для мониторинга производительности устройств ввода-вывода.
-lsof //  утилита для отображения открытых файлов и процессов
-
-df //показывает информацию о доступном пространстве на файловых системах
-du // позволяет оценить объём занимаемого файлами дискового пространства
-sudo dd if=/dev/sda of=/home/dmitry/backup_mbr bs=512 count=1 //  выполняет копирование и преобразование файлов и устройств блоками
-
-# Создадим файл нужного размера
+Создадим файл нужного размера
+```
 $ sudo fallocate -l  1G /swapfile
 $ sudo chmod 0600 /swapfile
-# "Отформатируем" файл
+```
+"Отформатируем" файл
+```
 $ sudo mkswap /swapfile
-# Включаем подкачку
+```
+Включаем подкачку
+```
 $ sudo swapon /swapfile
 $ free
-
+```
+# Создание RAID 2
+``` 
 sudo dd if=/dev/zero of=~/radio1 bs=200M count=1 status=progress
 sudo dd if=/dev/zero of=~/radio2 bs=200M count=1 status=progress
 sudo losetup --find --show ~/radio1
@@ -100,24 +271,48 @@ sudo umount -r /mnt/raid
 sudo mdadm --stop /dev/md0 
 sudo losetup -d /dev/loop9
 sudo losetup -d /dev/loop16
+```
+#
+посмотреть вызовы программы
+```
+strace ./process
+```
+системные вывзовы дочерних процессов
+```
+strace -f ./process
+```
+Выведем процессы для нашего пользователя
+```
+ps -U ${USER} -o pid,command,state
+```
+посмотреть загрузку процессора
+```
+cat /proc/loadavg
+```
+# Анализ хоста
+записать трафик
+```
+sudo tcpdump -v -n -w curl.pcap
+```
 
-strace ./process // посмотреть вызовы программы
-strace -f ./process // системные вывзовы дочерних процессов
-ps -U ${USER} -o pid,command,state //  Выведем процессы для нашего пользователя
-
-cat /proc/loadavg // посмотреть загрузку процессора
-
-
-
-sudo tcpdump -v -n -w curl.pcap // записать трафик
- curl -s https://practicum.yandex.ru > /dev/null // сделать запрос
+curl -s https://practicum.yandex.ru > /dev/null // сделать запрос
+```
+```
 dig practicum.yandex.ru  // резолв имени
+```
+```
 host -t A  practicum.yandex.ru  // резолв IPv4
 host -t AAAA practicum.yandex.ru // резолв IPv6
 host -t CNAME practicum.yandex.ru // резолв перенаправления на другое доменное имя 
 host -t PTR  87.250.250.5 // по IP получить доменное имя
-cat /etc/nsswitch.conf // каонфигурация для того как искать адреса
+```
+```
+cat /etc/nsswitch.conf // конфигурация для того как искать адреса
+```
+```
 /etc/hosts // файл с известными DNS
+```
+```
 getent hosts practicum.yandex.ru // запрос в /etc/hosts
 cat /etc/resolv.conf // конфигурация резолва
 sudo ss -lp | grep 127.0.0.53 // посмотреть все порты которые слушают на хосте с названиями процессов

@@ -205,13 +205,13 @@ xpack.security.enabled: true
 ```
 1. Запуск ELK-стека
 
-    Создайте необходимые директории:
+Создайте необходимые директории:
 ```
 mkdir -p {elasticsearch,logstash,kibana}/{config,pipeline} && touch {elasticsearch,logstash,kibana}/config/{elasticsearch,logstash,kibana}.yml logstash/pipeline/logstash.conf .env
 ```
-    Заполните файлы конфигурации (как показано выше)
+Заполните файлы конфигурации (как показано выше)
 
-    Запустите стек:
+Запустите стек:
 ```
 docker-compose up -d
 ```
@@ -223,7 +223,7 @@ docker-compose up -d
 
 1. Настройка Filebeat для отправки логов (опционально)
 
-    Создайте конфигурацию Filebeat:
+Создайте конфигурацию Filebeat:
 ```
 
 filebeat.inputs:
@@ -235,7 +235,7 @@ filebeat.inputs:
 output.logstash:
   hosts: ["localhost:5044"]
 ```
-    Запустите Filebeat в Docker:
+Запустите Filebeat в Docker:
 ```
 
 # Добавьте в docker-compose.yml

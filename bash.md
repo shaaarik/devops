@@ -1,10 +1,11 @@
+# Работа с оболочкой
 адрес оболочки
 ```
-echo $SHELL // /bin/bash
+echo $SHELL # /bin/bash
 ```
 PID процесса
 ```
-echo $$ // 665
+echo $$ # 665
 ```
 инфа про процесс
 ```
@@ -14,39 +15,34 @@ ps -p $$
 ```
 test -z $1 && echo "Hello, World!" || echo "Hello, $1!" 
 ```
-
 вывести промт оболочки
 ```
-echo $PS1 //  \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$
+echo $PS1 #  \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$
 ```
 изменить промт 
 ```
-PS1="prompt> " // prompt> 
-source ~/.bashrc // сбросить промт 
+PS1="prompt> " # prompt> 
+source ~/.bashrc # сбросить промт 
 ```
 звук БИИИП
 ```
-echo -ne '\007' // BEEEP
+echo -ne '\007' # BEEEP
 ```
 назначит псевдоним команды
 ```
 alias ll='ls -l'
 ```
-назначить псевдоним nginx_top, который выводит самый часто встречающийся ip адрес в логе nginx
-```
-alias nginx_top="awk '{print $1}' /var/log/nginx/access.log | uniq -c | sort -r | head -1" // 9 80.76.51.50
-```
 вывесть список путей к директориям
 ```
-echo $PATH // /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin 
+echo $PATH # /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin 
 ```
 вывести путь к исполняему файлу команды
 ```
-which ls // /usr/bin/ls
+which ls # /usr/bin/ls
 ```
 добавить в пути новую переменную
 ```
-export PATH="${PATH}:<новая директория которую хотите добавить>" // source ~/.bashrc
+export PATH="${PATH}:<новая директория которую хотите добавить>" # source ~/.bashrc
 ```
 вывести хэш таблицу оболочки
 ```
@@ -74,40 +70,48 @@ hash <имя_команды>
 ```
 hash -d <имя_команды>
 ```
-инфа про файл
+
+вывести последней код завершения последней выполненной команды
 ```
-file hello.sh
+$ bash -c "exit 2"
+$ echo $?
+2
+
+$ bash -c "exit 2"
+$ if [[ $? -eq 0 ]]; then echo "Success"; else echo "Error"; fi
+Error
 ```
-
-
+показывает информацию о исполняемом файле текущего shell-процесса.
 ```
-set -euo pipefail //
-
-
-if [ -z "${INPUT}" ]
-then 
-  echo "Hello, World!"
-else 
-  echo "Hello, ${INPUT}!"
-fi
+ls -l /proc/$$/exe
+lrwxrwxrwx 1 ubuntu ubuntu 0 Sep 10 12:09 /proc/1190/exe -> /usr/bin/bash 
 ```
+Переменная $! содержит идентификатор последнего запущенного фонового процесса
+```
+$ echo $!
+```
+# Работа со строками и переменными
 
-shell
-$ ARG1=5
-$ ARG2=7
-$ echo ARG1+ARG2 | bc
+ввесте 2 переменные и потом сложить их и вывести математический результат
+```
+ARG1=5
+ARG2=7
+$ echo $ARG1+$ARG2 | bc
 12 
+```
 
+выводит строку буквально, без подстановки переменной
+```
 $ echo '$JAVA_HOME'
 $JAVA_HOME
-
+```
+подставляет значение переменной
+```
 $ echo "$JAVA_HOME"
 /usr/lib/jvm/java-17-openjdk-amd64 
-
-$ echo "${JAVA_HOME}/"
-/usr/lib/jvm/java-17-openjdk-amd64/ 
-
-
+```
+математические операции со строками
+```
 $ RESPONSE_CODE=400
 $ echo $RESPONSE_CODE
 400
@@ -117,27 +121,15 @@ $ echo $RESPONSE_CODE
 $ RESPONSE_CODE=$((400+4))
 $ echo $RESPONSE_CODE
 404 
-
-
-
+```
+создать переменную с выводом кода результата HTTP-запроса
+```
 $ RESPONSE_CODE=$(curl -w '%{response_code}' -I -s -o /dev/null http://practicum.yandex.ru)
 $ echo $RESPONSE_CODE
 302 
-
-
-
-$ declare -a MY_ARRAY
-$ MY_ARRAY[0]="Hello"
-$ MY_ARRAY[1]="World"
-$ echo ${MY_ARRAY[0]} ${MY_ARRAY[1]}!
-Hello World! 
-
-$ MY_ARRAY=("Hello" "World")
-$ echo ${MY_ARRAY[0]}, ${MY_ARRAY[1]}!
-Hello, World!
-
-
-
+```
+Объявить переменную только для чтения 
+```
 $ declare -r MY_VARIABLE="Hello, World!"
 $ MY_VARIABLE="Hello, World?"
 bash: MY_VARIABLE: readonly variable
@@ -145,64 +137,10 @@ bash: MY_VARIABLE: readonly variable
 $ readonly MY_VARIABLE="Hello, World!"
 $ MY_VARIABLE="Hello, World?"
 bash: MY_VARIABLE: readonly variable
+```
 
-
-$ bash -c "exit 2"
-$ echo $?
-2
-
-
-$ bash -c "exit 2"
-$ if [[ $? -eq 0 ]]; then echo "Success"; else echo "Error"; fi
-Error
-
-
-$ test -f /tmp/my_file.txt
-$ if [[ $? -eq 1 ]]; then touch /tmp/my_file.txt; fi
-
-
-
-#!/bin/bash
-# Пусть на вход поступает набор слов, разделённых двоеточием
-line="home-directory:bash-directory"
-# Переопределим IFS
-IFS=":"
-# Создадим массив
-tokens=($line)
-echo "${tokens[0]}"  # Выводит "home-directory"
-echo "${tokens[1]}"  # Выводит "bash-directory"
-
-
-IFS=","
-month=",January,February,March,April,May,June,July,August,September,October,November,December"
-MONTHS=($month)
-echo ${MONTHS[9]}
-September
-
-
-ls -l /proc/$$/exe
-lrwxrwxrwx 1 ubuntu ubuntu 0 Sep 10 12:09 /proc/1190/exe -> /usr/bin/bash 
-
-
-$ echo $! // Переменная $! содержит идентификатор последнего запущенного фонового процесса
-
-
-$ echo $(date +%Y-%m-%d)
-2021-09-10
-
-
-$ printf "Today is %(%A, %d %B %Y)T\n"
-Today is Friday, 10 September 2021 
-
-
-find . -name "*pipe*"
- find . -type p // найдёт все файлы каналов в текущей директории
-find /var/log -type f -size +1M -size -10M // файлы размером больше одного мегабайта, но меньше 10 мегабайт
-
-cat - // Если вместо списка файлов передать -, то cat будет читать данные со стандартного потока ввода
-
- sudo grep error -ir /var/log/ // -i для игнорирования регистра и -r для рекурсивного поиска в директории
- 
+примеры использования замены в строке через sed и awk
+```
 $ echo "Hello!" | sed 's/Hello/Hi/'
 Hi!
 
@@ -225,15 +163,15 @@ Hi1!Hi2!
 Hello1!Hello2!
 $ echo -e 'Hi1!Hi2!\nHello1!Hello2!' | awk -F'!' '/Hello/ {print $1}'
 Hello1
-
-
+```
+использование скрипта для awk
+```
 $ cat script.awk
 BEGIN {}
 { print $1; }
 END {}
 $ echo "Hello1! Hello2!" | awk -f script.awk
 Hello1! Hello2!
-
 
 
 $ cat script.awk
@@ -261,15 +199,152 @@ ffff:2f0:d13:2b03:10b:28f0:209e:0
 ffff:2f0:d13:2a91:10b:28f0:5a8f:0
 ffff:2f0:d13:2a8a:10b:28f0:5d04:0
 ffff:6b8:c0f:4882:10b:28f0:e727:0
+```
+# Массивы
+объявить массив и вывести результат по индексу
+```
+$ declare -a MY_ARRAY
+$ MY_ARRAY[0]="Hello"
+$ MY_ARRAY[1]="World"
+$ echo ${MY_ARRAY[0]} ${MY_ARRAY[1]}!
+Hello World! 
+```
+объявить массив одновременно с присвоением значений
+```
+$ MY_ARRAY=("Hello" "World")
+$ echo ${MY_ARRAY[0]}, ${MY_ARRAY[1]}!
+Hello, World!
+```
+поменять символ разделения в массиве
+```
+#!/bin/bash
+# Пусть на вход поступает набор слов, разделённых двоеточием
+line="home-directory:bash-directory"
+# Переопределим IFS
+IFS=":"
+# Создадим массив
+tokens=($line)
+echo "${tokens[0]}"  # Выводит "home-directory"
+echo "${tokens[1]}"  # Выводит "bash-directory"
+```
+поменять символ разделения в массиве на запятую, объявить массив через строку и вывести 9ый элемент
+```
+IFS=","
+month=",January,February,March,April,May,June,July,August,September,October,November,December"
+MONTHS=($month)
+echo ${MONTHS[9]}
+September
+```
+# Условия
 
+проверить существует ли файл, если нет, тогда создать файл
+```
+$ test -f /tmp/my_file.txt
+$ if [[ $? -eq 1 ]]; then touch /tmp/my_file.txt; fi
+```
+-e выход в случае ошибки, -u выход при использовании неопределенных переменных, -o pipefail - учитывать ошибки в пайпах
+```
+set -euo pipefail
 
+if [ -z "${INPUT}" ] #если есть INPUT
+then 
+  echo "Hello, World!"
+else 
+  echo "Hello, ${INPUT}!"
+fi
+```
+# Команды
 
+вывести форматированную строку текущей даты
+```
+$ echo $(date +%Y-%m-%d)
+2021-09-10
 
+$ printf "Today is %(%A, %d %B %Y)T\n"
+Today is Friday, 10 September 2021 
+```
 
+# Работа с файлами
 
+инфа про файл
+```
+file hello.sh
+```
+найти файл содержащим слово pipe
+```
+find . -name "*pipe*"
+```
+найдёт все файлы каналов в текущей директории
+```
+find . -type p 
+```
+файлы размером больше одного мегабайта, но меньше 10 мегабайт
+```
+find /var/log -type f -size +1M -size -10M 
+```
+назначить псевдоним nginx_top, который выводит самый часто встречающийся ip адрес в логе nginx
+```
+alias nginx_top="awk '{print $1}' /var/log/nginx/access.log | uniq -c | sort -r | head -1" # 9 80.76.51.50
+```
+Если вместо списка файлов передать -, то cat будет читать данные со стандартного потока ввода
+```
+cat - 
+```
+-i для игнорирования регистра и -r для рекурсивного поиска в директории
+```
+sudo grep error -ir /var/log/ // 
+```
+find . - ищет файлы в текущей директории и поддиректориях
+-name "*.bak" - фильтрует файлы по расширению .bak
+-exec rm {} \; - для каждого найденного файла выполняет команду rm
+  {} - заменяется на имя найденного файла
+  \; - обозначает конец команды
+```
 $ find . -name "*.bak" -exec rm {} \;
+```
+выполняет параллельное удаление всех файлов с расширением .bak в текущей директории и поддиректориях.
+```
 $ find . -name "*.bak" | xargs rm
 $ find . -name "*.bak" | xargs -P 4 rm
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 $ killall -o 10d -r <regexp имен процессов>

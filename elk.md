@@ -134,10 +134,9 @@ xpack:
     authc:
       api_key:
         enabled: true
-
+```
 logstash/config/logstash.yml
-yaml
-Copy
+```
 
 http.host: "0.0.0.0"
 xpack.monitoring.enabled: true

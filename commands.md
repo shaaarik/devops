@@ -395,37 +395,40 @@ unmkinitramfs -v /boot/initrd.img-5.4.0-156-generic . // распаковать 
 
 
 
-systemctl list-units --type service --all   — просмотр всех юнитов в системе
-systemctl start name                        — запустить сервис
-systemctl stop name                         — остановить сервис
-systemctl restart name                      — перезапустить сервис
-systemctl status name                       — посмотреть статус сервиса
-systemctl reload name                       — перечитать конфигурацию
-systemctl daemon-reload                     — перечитать конфигурацию для всех
-systemctl try-restart name                  — перезапустить, если запущен
-systemctl enable name                       — включить автозапуск сервиса
-systemctl disable name                      — отключить автозапуск сервиса
-systemctl list-unit-files --type service    — список установленных юнит-файлов сервисов
+    systemctl list-units --type service --all   — просмотр всех юнитов в системе
+    systemctl start name                        — запустить сервис
+    systemctl stop name                         — остановить сервис
+    systemctl restart name                      — перезапустить сервис
+    systemctl status name                       — посмотреть статус сервиса
+    systemctl reload name                       — перечитать конфигурацию
+    systemctl daemon-reload                     — перечитать конфигурацию для всех
+    systemctl try-restart name                  — перезапустить, если запущен
+    systemctl enable name                       — включить автозапуск сервиса
+    systemctl disable name                      — отключить автозапуск сервиса
+    systemctl list-unit-files --type service    — список установленных юнит-файлов сервисов
 
+записи с последней загрузки системы
+```
+sudo journalctl --boot --unit nginx.service 
+```
 
-sudo journalctl --boot --unit nginx.service // записи с последней загрузки системы
-
+выполняет преобразование прав доступа к файлу из шестнадцатеричного формата в двоичный
+```
 echo "ibase=16; obase=2; $(stat -c %f test.txt | tr [:lower:] [:upper:])" | bc
 1000000110110100 
-
+```
+```
 umask // посмотреть текущую маску
-
 id // Информацию об идентификаторах процесса и группы текущей оболочки
-
-
 cat /etc/passwd | grep ubutnu // инфа про пользователей
-
 echo $$ // PID текущей сессии
-
+```
+Параметр -d показывает расширенные атрибуты, -m '' показывает все атрибуты, а -- означает конец списка параметров и начало списка файлов. В выводе утилиты getfattr видно, что утилита ping имеет расширенный атрибут security.capability.
+```
 $ sudo getfattr -d -m '' -- /usr/bin/ping
 # file: usr/bin/ping
 security.capability=0sAQAAAgAgAAAAAAAAAAAAAAAAAAA= 
-Параметр -d показывает расширенные атрибуты, -m '' показывает все атрибуты, а -- означает конец списка параметров и начало списка файлов. В выводе утилиты getfattr видно, что утилита ping имеет расширенный атрибут security.capability.
 
 getcap /usr/bin/ping
 /usr/bin/ping cap_net_raw=ep  // Для просмотра расшифровки атрибута
+```

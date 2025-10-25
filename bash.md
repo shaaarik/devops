@@ -200,6 +200,42 @@ ffff:2f0:d13:2a91:10b:28f0:5a8f:0
 ffff:2f0:d13:2a8a:10b:28f0:5d04:0
 ffff:6b8:c0f:4882:10b:28f0:e727:0
 ```
+
+ввод в оболочку по строкам
+```
+$ cat <<EOF
+> Hello,
+> World!
+> EOF
+Hello,
+World!
+```
+
+ввод в файл по строкам
+``` 
+$ cat <<EOF > file.txt
+> Hello,
+> World!
+> EOF
+$ cat file.txt
+Hello,
+World!
+```
+ввод в файл по строкам через "cat -"
+```
+$ cat - > file.txt
+Hello,
+World!
+^D
+$ cat file.txt
+Hello,
+World!
+```
+``` 
+$ name="World"
+$ cat <<< "Hello, $name!"
+Hello, World!
+```
 # Массивы
 объявить массив и вывести результат по индексу
 ```
@@ -253,6 +289,136 @@ else
   echo "Hello, ${INPUT}!"
 fi
 ```
+квадратные скобки заменяют команду test
+```
+var1=7
+if test "$var1" -lt 10; then
+  echo "$var1 меньше 10."
+fi
+
+var1=7
+if [ "$var1" -lt 10 ]; then
+  echo "$var1 меньше 10."
+fi
+```
+```
+string1="Hello"
+
+if [[ $string1 == *el* ]]; then
+    if [[ $string1 == *llo* ]]; then
+        echo "Строка '$string1' содержит подстроку 'el' и подстроку 'llo'"
+    fi
+    echo "Строка '$string1' содержит подстроку 'el'"
+else
+    echo "Строка '$string1' не содержит подстроки 'el' и 'llo'"
+fi
+
+```
+проверка является ли пользователь root или нет
+```
+if [ $(id -u) -eq 0 ]; then
+    echo "User is root"
+else
+    echo "User is not root"
+fi
+```
+сравнение массивов
+```
+array1=("a" "b" "c")
+array2=("a" "b" "c")
+if [ "${array1[*]}" = "${array2[*]}" ]; then
+    echo "Массивы равны"
+else
+    echo "Массивы не равны"
+fi
+```
+использование case
+```
+animal="хомяк"
+
+case $animal in
+    хомяк)
+        echo "Это хомяк";;
+    питон)
+        echo "Это питон";;
+    верблюд)
+        echo "Это верблюд";;
+    *)
+        echo "Неизвестное животное";;
+esac
+```
+# Циклы
+цикл из диапазона
+```
+for i in {1..5}
+do
+    echo $i
+done
+```
+перебоор массива
+```
+array=("python" "camel" "cherry")
+for animal in "${array[@]}"
+do
+    echo $animal
+done
+```
+Основное отличие между ${array[*]} и ${array[@]} в том, как они обрабатываются в контексте кавычек:
+
+Если ${array[*]} внутри кавычек, все элементы массива будут рассматриваться как одна строка.
+Если ${array[@]} внутри кавычек, каждый элемент массива будет рассматриваться как отдельная строка. Также полезно, когда элемент массива содержит пробел в значении.
+```
+echo "list in quotes"
+for arg in "$@"; do
+    echo "Аргумент: $arg"
+done
+echo "string in quotes"
+for arg in "$*"; do
+    echo "Аргумент: $arg"
+done
+
+
+list in quotes
+Аргумент: arg1
+Аргумент: arg2
+Аргумент: arg3
+string in quotes
+Аргумент: arg1 arg2 arg3
+```
+
+
+Выведет на экран все «обычные» файлы в текущей директории, а затем для каждого файла выведет его размер
+```
+for file in *
+do
+  echo "Файл: $file"
+  if [ -f "$file" ]
+  then
+    size=$(du -h "$file" | cut -f1)
+    echo "Размер: $size"
+  fi
+done
+```
+цикл с инкрементацией
+```
+i=1
+while [ $i -le 10 ]
+do
+    echo $i
+    i=$((i+1))
+done
+
+i=1
+until [ $i -gt 10 ]
+do
+    echo $i
+    i=$((i+1))
+done
+```
+однострочный цикл
+```
+while true; do for i in {1..10}; do [ $i -eq 5 ] && continue; echo $i; done; exit; done
+```
 # Команды
 
 вывести форматированную строку текущей даты
@@ -262,6 +428,16 @@ $ echo $(date +%Y-%m-%d)
 
 $ printf "Today is %(%A, %d %B %Y)T\n"
 Today is Friday, 10 September 2021 
+```
+используется для завершения процессов по регулярному выражению, которые были запущены более 10 дней назад
+```
+$ killall -o 10d -r <regexp имен процессов>
+$ ps --no-headers -eo pid,etimes,cmd | awk '$2 > 864000 {print $1}' | xargs kill
+$ find /proc -maxdepth 1 -type d -regex '.*/[0-9]+' -mtime +10 -exec basename {} \; | xargs kill -9
+```
+декодирует base64-закодированный SSH приватный ключ и сохраняет его в файл
+```
+base64 -d - <<< ${SSH_PRIVATE_KEY_BASE64} > ~/.ssh/id_rsa 
 ```
 
 # Работа с файлами
@@ -308,205 +484,9 @@ $ find . -name "*.bak" | xargs rm
 $ find . -name "*.bak" | xargs -P 4 rm
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$ killall -o 10d -r <regexp имен процессов>
-$ ps --no-headers -eo pid,etimes,cmd | awk '$2 > 864000 {print $1}' | xargs kill
-$ find /proc -maxdepth 1 -type d -regex '.*/[0-9]+' -mtime +10 -exec basename {} \; | xargs kill -9
-
-$ cat <<EOF
-> Hello,
-> World!
-> EOF
-Hello,
-World!
-
-
-
-
-$ cat <<EOF > file.txt
-> Hello,
-> World!
-> EOF
-$ cat file.txt
-Hello,
-World!
-
-
-
-$ cat - > file.txt
-Hello,
-World!
-^D
-$ cat file.txt
-Hello,
-World!
-
-
-$ name="World"
-$ cat <<< "Hello, $name!"
-Hello, World!
-
-
-
-base64 -d - <<< ${SSH_PRIVATE_KEY_BASE64} > ~/.ssh/id_rsa 
-
-
-
-
-var1=7
-if test "$var1" -lt 10; then
-  echo "$var1 меньше 10."
-fi
-
-var1=7
-if [ "$var1" -lt 10 ]; then
-  echo "$var1 меньше 10."
-fi
-
-
-
-
-string1="Hello"
-
-if [[ $string1 == *el* ]]; then
-    if [[ $string1 == *llo* ]]; then
-        echo "Строка '$string1' содержит подстроку 'el' и подстроку 'llo'"
-    fi
-    echo "Строка '$string1' содержит подстроку 'el'"
-else
-    echo "Строка '$string1' не содержит подстроки 'el' и 'llo'"
-fi
-
-
-
-if [ $(id -u) -eq 0 ]; then
-    echo "User is root"
-else
-    echo "User is not root"
-fi
-
-
-array1=("a" "b" "c")
-array2=("a" "b" "c")
-if [ "${array1[*]}" = "${array2[*]}" ]; then
-    echo "Массивы равны"
-else
-    echo "Массивы не равны"
-fi
-
-
-
-
-animal="хомяк"
-
-case $animal in
-    хомяк)
-        echo "Это хомяк";;
-    питон)
-        echo "Это питон";;
-    верблюд)
-        echo "Это верблюд";;
-    *)
-        echo "Неизвестное животное";;
-esac
-
-
-
-array=("python" "camel" "cherry")
-for animal in "${array[@]}"
-do
-    echo $animal
-done
-
-
-
-
-
-Основное отличие между ${array[*]} и ${array[@]} в том, как они обрабатываются в контексте кавычек:
-
-    Если ${array[*]} внутри кавычек, все элементы массива будут рассматриваться как одна строка.
-    Если ${array[@]} внутри кавычек, каждый элемент массива будет рассматриваться как отдельная строка. Также полезно, когда элемент массива содержит пробел в значении.
-	
-	
-for i in {1..5}
-do
-    echo $i
-done
-
-
-
-// Выведет на экран все «обычные» файлы в текущей директории, а затем для каждого файла выведет его размер
-for file in *
-do
-  echo "Файл: $file"
-  if [ -f "$file" ]
-  then
-    size=$(du -h "$file" | cut -f1)
-    echo "Размер: $size"
-  fi
-done
-
-
-
-
-i=1
-while [ $i -le 10 ]
-do
-    echo $i
-    i=$((i+1))
-done
-
-
-
-
-i=1
-until [ $i -gt 10 ]
-do
-    echo $i
-    i=$((i+1))
-done
-
-
-
-
+# Скрипты
+скрипт с выбором ответа
+```
 #!/bin/bash
 
 Text='Please enter your choice(1-3): '
@@ -530,13 +510,9 @@ do
         *) echo "Вы не сказали, какое у вас любимое животное =(";;
     esac
 done
-
-
-
-while true; do for i in {1..10}; do [ $i -eq 5 ] && continue; echo $i; done; exit; done
-
-
-
+```
+фунцкии
+```
 function sum {
     a=$1
     b=$2
@@ -547,11 +523,9 @@ function sum {
 sum 5 10
 sum_result=$?
 echo "Сумма: $sum_result"
-
-
-
-
-
+```
+& запускает процесс в фоне
+```
 function my_function {
     sleep 5
     echo "Функция завершена"
@@ -559,28 +533,10 @@ function my_function {
 
 my_function &
 echo "Скрипт продолжает выполнение"
-
-
-
-echo "list in quotes"
-for arg in "$@"; do
-    echo "Аргумент: $arg"
-done
-echo "string in quotes"
-for arg in "$*"; do
-    echo "Аргумент: $arg"
-done
-
-
-list in quotes
-Аргумент: arg1
-Аргумент: arg2
-Аргумент: arg3
-string in quotes
-Аргумент: arg1 arg2 arg3
-
-
-// При помощи -- в парсерах команной строки принято обозначать, что больше нет аргументов, которые начинаются с -.
+```
+пример скрипта на bash с флагами 
+При помощи -- в парсерах команной строки принято обозначать, что больше нет аргументов, которые начинаются с -
+```
 
 show_help() {
   echo "Использование: script.sh [опции]"
@@ -621,3 +577,4 @@ while true; do
 done
 
 rm -- -r //  удалить в командной строке файл, который называется -r
+```
